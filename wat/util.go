@@ -4,9 +4,9 @@ import (
 	"fmt"
 )
 
-type HexBytes []byte
+type hexBytes []byte
 
-func (hex HexBytes) GoString() string {
+func (hex hexBytes) GoString() string {
 	const hexDigits = "0123456789abcdef"
 	var scratch [256]byte
 	out := scratch[:0]
@@ -22,11 +22,11 @@ func (hex HexBytes) GoString() string {
 	return string(out)
 }
 
-func (hex HexBytes) String() string {
+func (hex hexBytes) String() string {
 	return hex.GoString()
 }
 
 var (
-	_ fmt.GoStringer = HexBytes(nil)
-	_ fmt.Stringer   = HexBytes(nil)
+	_ fmt.GoStringer = hexBytes(nil)
+	_ fmt.Stringer   = hexBytes(nil)
 )

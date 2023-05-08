@@ -495,7 +495,7 @@ func (lexer *Lexer) readRune() (rune, bool) {
 
 	ch, size := utf8.DecodeRune(lexer.input)
 	if size < 1 || (size == 1 && ch == utf8.RuneError) {
-		tmp := HexBytes(lexer.input)
+		tmp := hexBytes(lexer.input)
 		suffix := ""
 		if len(tmp) > 8 {
 			tmp = tmp[:8]
