@@ -14,6 +14,14 @@ const (
 	CRLF
 )
 
+var spaceTypeGoNames = [...]string{
+	"wat.SP",
+	"wat.HT",
+	"wat.LF",
+	"wat.CR",
+	"wat.CRLF",
+}
+
 var spaceTypeNames = [...]string{
 	"SP",
 	"HT",
@@ -39,14 +47,27 @@ var spaceTypeTexts = [...]string{
 }
 
 func (enum SpaceType) GoString() string {
-	if enum < SpaceType(len(spaceTypeNames)) {
-		return spaceTypeNames[enum]
-	}
-	return fmt.Sprintf("SpaceType(%d)", uint(enum))
+	var scratch [16]byte
+	return string(enum.AppendTo(scratch[:0], true))
 }
 
 func (enum SpaceType) String() string {
-	return enum.GoString()
+	var scratch [16]byte
+	return string(enum.AppendTo(scratch[:0], false))
+}
+
+func (enum SpaceType) AppendTo(out []byte, verbose bool) []byte {
+	names := spaceTypeNames
+	if verbose {
+		names = spaceTypeGoNames
+	}
+	var str string
+	if enum < SpaceType(len(names)) {
+		str = names[enum]
+	} else {
+		str = fmt.Sprintf("wat.SpaceType(%d)", byte(enum))
+	}
+	return append(out, str...)
 }
 
 func (enum SpaceType) Rune() rune {
@@ -66,4 +87,5 @@ func (enum SpaceType) Text() string {
 var (
 	_ fmt.GoStringer = SpaceType(0)
 	_ fmt.Stringer   = SpaceType(0)
+	_ appenderTo     = SpaceType(0)
 )

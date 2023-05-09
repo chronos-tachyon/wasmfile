@@ -14,22 +14,21 @@ type Num struct {
 
 func (num Num) GoString() string {
 	var scratch [64]byte
-	out := scratch[:0]
-	out = append(out, "Num{"...)
-	out = append(out, num.Flags.String()...)
-	out = append(out, ", "...)
-	out = strconv.AppendQuote(out, num.Integer)
-	out = append(out, ", "...)
-	out = strconv.AppendQuote(out, num.Fraction)
-	out = append(out, ", "...)
-	out = strconv.AppendQuote(out, num.Exponent)
-	out = append(out, "}"...)
-	return string(out)
+	return string(num.AppendTo(scratch[:0], true))
 }
 
 func (num Num) String() string {
 	var scratch [64]byte
-	out := scratch[:0]
+	return string(num.AppendTo(scratch[:0], false))
+}
+
+func (num Num) AppendTo(out []byte, verbose bool) []byte {
+	if verbose {
+		out = append(out, "wat.Num{"...)
+		out = num.appendGuts(out, verbose)
+		out = append(out, "}"...)
+		return out
+	}
 
 	switch num.Flags & (FlagSign | FlagNeg) {
 	case FlagSign | FlagNeg:
@@ -44,12 +43,12 @@ func (num Num) String() string {
 			out = append(out, ':', '0', 'x')
 			out = append(out, num.Integer...)
 		}
-		return string(out)
+		return out
 	}
 
 	if num.Flags.HasAny(FlagInf) {
 		out = append(out, 'i', 'n', 'f')
-		return string(out)
+		return out
 	}
 
 	expChar := byte('e')
@@ -73,7 +72,24 @@ func (num Num) String() string {
 		}
 		out = append(out, num.Exponent...)
 	}
-	return string(out)
+	return out
+}
+
+func (num Num) appendGuts(out []byte, verbose bool) []byte {
+	out = num.Flags.AppendTo(out, false)
+	if num.Integer != "" {
+		out = append(out, ", "...)
+		out = strconv.AppendQuote(out, num.Integer)
+	}
+	if num.Fraction != "" {
+		out = append(out, ", "...)
+		out = strconv.AppendQuote(out, num.Fraction)
+	}
+	if num.Exponent != "" {
+		out = append(out, ", "...)
+		out = strconv.AppendQuote(out, num.Exponent)
+	}
+	return out
 }
 
 var (

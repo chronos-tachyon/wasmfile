@@ -2,7 +2,9 @@ package wat
 
 import (
 	"fmt"
+	"strconv"
 	"unicode"
+	"unicode/utf8"
 )
 
 type Position struct {
@@ -14,16 +16,42 @@ type Position struct {
 }
 
 func (pos Position) GoString() string {
-	return fmt.Sprintf("Position{B:%d, R:%d, L:%d, C:%d, S:%t}", pos.ByteOffset, pos.RuneOffset, pos.Line, pos.Column, pos.SkipLF)
+	var scratch [48]byte
+	return string(pos.AppendTo(scratch[:0], true))
 }
 
 func (pos Position) String() string {
-	return fmt.Sprintf("L:%d C:%d @ %d", pos.Line+1, pos.Column+1, pos.ByteOffset)
+	var scratch [32]byte
+	return string(pos.AppendTo(scratch[:0], false))
+}
+
+func (pos Position) AppendTo(out []byte, verbose bool) []byte {
+	if verbose {
+		out = append(out, "wat.Position{B:"...)
+		out = strconv.AppendUint(out, pos.ByteOffset, 10)
+		out = append(out, ',', ' ', 'R', ':')
+		out = strconv.AppendUint(out, pos.RuneOffset, 10)
+		out = append(out, ',', ' ', 'L', ':')
+		out = strconv.AppendUint(out, uint64(pos.Line), 10)
+		out = append(out, ',', ' ', 'C', ':')
+		out = strconv.AppendUint(out, uint64(pos.Column), 10)
+		out = append(out, ',', ' ', 'S', ':')
+		out = strconv.AppendBool(out, pos.SkipLF)
+		out = append(out, '}')
+		return out
+	}
+	out = append(out, 'L', ':')
+	out = strconv.AppendUint(out, uint64(pos.Line)+1, 10)
+	out = append(out, ' ', 'C', ':')
+	out = strconv.AppendUint(out, uint64(pos.Column)+1, 10)
+	out = append(out, ' ', '@', ' ')
+	out = strconv.AppendUint(out, pos.ByteOffset, 10)
+	return out
 }
 
 func (pos *Position) Advance(ch rune, size int) {
-	if size < 0 {
-		size = 0
+	if size < 1 || (size == 1 && ch == utf8.RuneError) {
+		return
 	}
 
 	pos.ByteOffset += uint64(size)
@@ -63,4 +91,5 @@ func (pos *Position) Advance(ch rune, size int) {
 var (
 	_ fmt.GoStringer = Position{}
 	_ fmt.Stringer   = Position{}
+	_ appenderTo     = Position{}
 )

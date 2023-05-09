@@ -23,22 +23,11 @@ func IN(str string) *Node {
 }
 
 func SVN(str string) *Node {
-	return &Node{Type: StrNode, Value: str}
+	return &Node{Type: StringNode, Value: str}
 }
 
-func NVN(f NumFlags, v ...string) *Node {
-	var num Num
-	num.Flags = f
-	if len(v) > 0 {
-		num.Integer = v[0]
-	}
-	if len(v) > 1 {
-		num.Fraction = v[1]
-	}
-	if len(v) > 2 {
-		num.Exponent = v[2]
-	}
-	return &Node{Type: NumNode, Value: num}
+func NVN(bits NumFlags, v ...string) *Node {
+	return &Node{Type: NumberNode, Value: N(bits, v...)}
 }
 
 func TestParse(t *testing.T) {

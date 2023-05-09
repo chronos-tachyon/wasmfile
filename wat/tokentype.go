@@ -15,14 +15,29 @@ const (
 	BlockCommentToken
 	KeywordToken
 	IdentifierToken
-	StrToken
-	NumToken
+	StringToken
+	NumberToken
 	OpenParenToken
 	CloseParenToken
 )
 
+var tokenTypeGoNames = [...]string{
+	"wat.InvalidToken",
+	"wat.AcceptToken",
+	"wat.RejectToken",
+	"wat.SpaceToken",
+	"wat.LineCommentToken",
+	"wat.BlockCommentToken",
+	"wat.KeywordToken",
+	"wat.IdentifierToken",
+	"wat.StringToken",
+	"wat.NumberToken",
+	"wat.OpenParenToken",
+	"wat.CloseParenToken",
+}
+
 var tokenTypeNames = [...]string{
-	"Invalid",
+	"<invalid>",
 	"Accept",
 	"Reject",
 	"Space",
@@ -30,21 +45,56 @@ var tokenTypeNames = [...]string{
 	"BlockComment",
 	"Keyword",
 	"Identifier",
-	"Str",
-	"Num",
+	"String",
+	"Number",
 	"OpenParen",
 	"CloseParen",
 }
 
+var tokenTypeNodeTypes = [...]NodeType{
+	InvalidNode,
+	InvalidNode,
+	InvalidNode,
+	SpaceNode,
+	LineCommentNode,
+	BlockCommentNode,
+	KeywordNode,
+	IdentifierNode,
+	StringNode,
+	NumberNode,
+	InvalidNode,
+	InvalidNode,
+}
+
 func (enum TokenType) GoString() string {
-	if enum < TokenType(len(tokenTypeNames)) {
-		return tokenTypeNames[enum]
-	}
-	return fmt.Sprintf("TokenType(%d)", uint(enum))
+	var scratch [24]byte
+	return string(enum.AppendTo(scratch[:0], true))
 }
 
 func (enum TokenType) String() string {
-	return enum.GoString()
+	var scratch [24]byte
+	return string(enum.AppendTo(scratch[:0], false))
+}
+
+func (enum TokenType) AppendTo(out []byte, verbose bool) []byte {
+	names := tokenTypeNames
+	if verbose {
+		names = tokenTypeGoNames
+	}
+	var str string
+	if enum < TokenType(len(names)) {
+		str = names[enum]
+	} else {
+		str = fmt.Sprintf("wat.TokenType(%d)", byte(enum))
+	}
+	return append(out, str...)
+}
+
+func (enum TokenType) NodeType() NodeType {
+	if enum < TokenType(len(tokenTypeNodeTypes)) {
+		return tokenTypeNodeTypes[enum]
+	}
+	return InvalidNode
 }
 
 func (enum TokenType) IsTerminal() bool {
@@ -54,4 +104,5 @@ func (enum TokenType) IsTerminal() bool {
 var (
 	_ fmt.GoStringer = TokenType(0)
 	_ fmt.Stringer   = TokenType(0)
+	_ appenderTo     = TokenType(0)
 )

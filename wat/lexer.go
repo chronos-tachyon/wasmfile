@@ -10,6 +10,11 @@ import (
 	"unicode/utf8"
 )
 
+type TokenStream interface {
+	HasNext() bool
+	Next() Token
+}
+
 type Lexer struct {
 	input []byte
 	pos   Position
@@ -110,7 +115,7 @@ func (lexer *Lexer) lexNumber(flags NumFlags) {
 	m := lexer.createMark()
 	keyword := lexer.takeWhile(nil, isIdentifier)
 	if keywordToNumber(&num, keyword) {
-		lexer.done(NumToken, num)
+		lexer.done(NumberToken, num)
 		return
 	}
 	m.rewind(lexer)
@@ -147,14 +152,14 @@ func (lexer *Lexer) lexNumber(flags NumFlags) {
 		}
 	}
 
-	lexer.done(NumToken, num)
+	lexer.done(NumberToken, num)
 }
 
 func (lexer *Lexer) lexKeyword() {
 	keyword := lexer.takeWhile(nil, isIdentifier)
 	var num Num
 	if keywordToNumber(&num, keyword) {
-		lexer.done(NumToken, num)
+		lexer.done(NumberToken, num)
 		return
 	}
 	lexer.done(KeywordToken, keyword)
@@ -299,7 +304,7 @@ func (lexer *Lexer) lexString() {
 		}
 
 		if ch == '"' {
-			lexer.done(StrToken, string(partial))
+			lexer.done(StringToken, string(partial))
 			return
 		}
 
@@ -551,7 +556,12 @@ func (lexer *Lexer) done(tt TokenType, tv any) {
 	lexer.next.Type = tt
 	lexer.next.Value = tv
 	lexer.next.Span.End = lexer.pos
+	if err := lexer.next.Validate(); err != nil {
+		panic(err)
+	}
 }
+
+var _ TokenStream = (*Lexer)(nil)
 
 type mark struct {
 	input []byte
