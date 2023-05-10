@@ -381,9 +381,9 @@ func TestLexer(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			testDataPath := path.Join("testdata", tc.Name)
+	for _, row := range testCases {
+		t.Run(row.Name, func(t *testing.T) {
+			testDataPath := path.Join("testdata", row.Name)
 
 			raw, err := fs.ReadFile(testDataFS, testDataPath)
 			if err != nil {
@@ -391,7 +391,7 @@ func TestLexer(t *testing.T) {
 				return
 			}
 
-			expect := tc.Expect
+			expect := row.Expect
 			expectLen := uint(len(expect))
 			actual := make([]Token, 0, expectLen)
 

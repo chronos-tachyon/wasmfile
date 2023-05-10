@@ -14,10 +14,34 @@ type gutsAppender interface {
 }
 
 func appendGuts(out []byte, verbose bool, v any) []byte {
-	if x, ok := v.(gutsAppender); ok {
+	switch x := v.(type) {
+	case nil:
+		return out
+
+	case gutsAppender:
 		return x.appendGuts(out, verbose)
+
+	case []string:
+		for i, str := range x {
+			if i > 0 {
+				out = append(out, ", "...)
+			}
+			out = strconv.AppendQuote(out, str)
+		}
+		return out
+
+	case []*Node:
+		for i, node := range x {
+			if i > 0 {
+				out = append(out, ", "...)
+			}
+			out = node.AppendTo(out, verbose)
+		}
+		return out
+
+	default:
+		return appendPretty(out, verbose, v)
 	}
-	return appendPretty(out, verbose, v)
 }
 
 func appendPretty(out []byte, verbose bool, v any) []byte {

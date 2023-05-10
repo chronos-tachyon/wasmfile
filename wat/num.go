@@ -25,8 +25,29 @@ func (num Num) String() string {
 func (num Num) AppendTo(out []byte, verbose bool) []byte {
 	if verbose {
 		out = append(out, "wat.Num{"...)
-		out = num.appendGuts(out, verbose)
+	}
+	out = num.appendGuts(out, verbose)
+	if verbose {
 		out = append(out, "}"...)
+	}
+	return out
+}
+
+func (num Num) appendGuts(out []byte, verbose bool) []byte {
+	if verbose {
+		out = num.Flags.AppendTo(out, false)
+		if num.Integer != "" {
+			out = append(out, ", "...)
+			out = strconv.AppendQuote(out, num.Integer)
+		}
+		if num.Fraction != "" {
+			out = append(out, ", "...)
+			out = strconv.AppendQuote(out, num.Fraction)
+		}
+		if num.Exponent != "" {
+			out = append(out, ", "...)
+			out = strconv.AppendQuote(out, num.Exponent)
+		}
 		return out
 	}
 
@@ -71,23 +92,6 @@ func (num Num) AppendTo(out []byte, verbose bool) []byte {
 			out = append(out, '+')
 		}
 		out = append(out, num.Exponent...)
-	}
-	return out
-}
-
-func (num Num) appendGuts(out []byte, verbose bool) []byte {
-	out = num.Flags.AppendTo(out, false)
-	if num.Integer != "" {
-		out = append(out, ", "...)
-		out = strconv.AppendQuote(out, num.Integer)
-	}
-	if num.Fraction != "" {
-		out = append(out, ", "...)
-		out = strconv.AppendQuote(out, num.Fraction)
-	}
-	if num.Exponent != "" {
-		out = append(out, ", "...)
-		out = strconv.AppendQuote(out, num.Exponent)
 	}
 	return out
 }

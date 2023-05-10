@@ -57,8 +57,6 @@ func (node *Node) Equals(other *Node) bool {
 	}
 
 	switch node.Type {
-	case RootNode:
-		fallthrough
 	case ExprNode:
 		a := node.Value.([]*Node)
 		b := other.Value.([]*Node)
@@ -109,8 +107,6 @@ func (node *Node) Validate(recursive bool) error {
 		return nil
 	}
 	switch node.Type {
-	case RootNode:
-		fallthrough
 	case ExprNode:
 		return node.validateChildren(recursive)
 	case SpaceNode:

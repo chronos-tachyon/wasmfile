@@ -8,7 +8,6 @@ type NodeType byte
 
 const (
 	InvalidNode NodeType = iota
-	RootNode
 	ExprNode
 	SpaceNode
 	LineCommentNode
@@ -21,7 +20,6 @@ const (
 
 var nodeTypeGoNames = [...]string{
 	"wat.InvalidNode",
-	"wat.RootNode",
 	"wat.ExprNode",
 	"wat.SpaceNode",
 	"wat.LineCommentNode",
@@ -34,7 +32,6 @@ var nodeTypeGoNames = [...]string{
 
 var nodeTypeNames = [...]string{
 	"<invalid>",
-	"Root",
 	"Expr",
 	"Space",
 	"LineComment",

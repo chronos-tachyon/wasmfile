@@ -38,7 +38,7 @@ func (parser *Parser) Parse(lexer TokenStream) (*Node, error) {
 
 	stack := make([]*Node, 0, 16)
 	list := make([]*Node, 0, 16)
-	root := parser.Node(RootNode, list, Span{})
+	root := parser.Node(ExprNode, list, Span{})
 	top := root
 
 	add := func(child *Node) *Node {

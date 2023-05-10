@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-func RN(v ...*Node) *Node {
-	return &Node{Type: RootNode, Value: v}
-}
-
 func XN(v ...*Node) *Node {
 	return &Node{Type: ExprNode, Value: v}
 }
@@ -39,19 +35,19 @@ func TestParse(t *testing.T) {
 	testCases := [...]TestCase{
 		{
 			Name: "file1.wat",
-			Expect: RN(
+			Expect: XN(
 				XN(KN("module")),
 			),
 		},
 		{
 			Name: "file2.wat",
-			Expect: RN(
+			Expect: XN(
 				XN(KN("module")),
 			),
 		},
 		{
 			Name: "file3.wat",
-			Expect: RN(
+			Expect: XN(
 				XN(
 					KN("module"),
 					XN(
@@ -108,7 +104,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			Name: "strings.wat",
-			Expect: RN(
+			Expect: XN(
 				SVN("this is a string"),
 				SVN("tab: \t"),
 				SVN("newline: \n"),
@@ -123,7 +119,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			Name: "numbers.wat",
-			Expect: RN(
+			Expect: XN(
 				NVN(0, "0"),
 				NVN(0, "123"),
 				NVN(FlagSign, "0"),
@@ -166,9 +162,9 @@ func TestParse(t *testing.T) {
 	}
 
 	var p Parser
-	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			testDataPath := path.Join("testdata", tc.Name)
+	for _, row := range testCases {
+		t.Run(row.Name, func(t *testing.T) {
+			testDataPath := path.Join("testdata", row.Name)
 
 			raw, err := fs.ReadFile(testDataFS, testDataPath)
 			if err != nil {
@@ -181,8 +177,8 @@ func TestParse(t *testing.T) {
 				t.Errorf("parse failed: %v", err)
 			}
 
-			if !tc.Expect.Equals(node) {
-				t.Errorf("parse gave wrong result:\n\texpect: %v\n\tactual: %v", tc.Expect, node)
+			if !row.Expect.Equals(node) {
+				t.Errorf("parse gave wrong result:\n\texpect: %v\n\tactual: %v", row.Expect, node)
 			}
 		})
 	}
